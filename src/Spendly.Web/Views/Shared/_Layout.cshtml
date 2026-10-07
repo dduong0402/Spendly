@@ -1,0 +1,89 @@
+@{
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    string NavClass(string controller) => currentController == controller ? "btn btn-ghost bg-soft text-ink" : "btn btn-ghost";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>@ViewData["Title"] - Spendly</title>
+  <meta name="description" content="Spendly - theo dõi chi tiêu cá nhân theo ngày, tuần và tháng." />
+  <meta name="theme-color" content="#1F6BFF" />
+  <link rel="icon" type="image/svg+xml" href="~/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+  <header class="sticky top-0 z-40 border-b border-line bg-white/80 backdrop-blur">
+    <div class="container-app flex h-16 items-center justify-between">
+      <div class="flex items-center gap-6">
+        <a href="/" class="flex items-center gap-2.5 text-lg font-bold text-ink">
+          <span class="flex h-8 w-8 items-center justify-center rounded-[10px] bg-primary text-white" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l5-5 4 4 7-8" /></svg>
+          </span>
+          Spendly
+        </a>
+        @if (isAuthenticated)
+        {
+          <nav class="hidden items-center gap-1 md:flex" aria-label="Điều hướng chính">
+            <a asp-controller="Dashboard" asp-action="Index" class="@NavClass("Dashboard")">Dashboard</a>
+            <a asp-controller="Expenses" asp-action="Index" class="@NavClass("Expenses")">Chi tiêu</a>
+            <a asp-controller="Categories" asp-action="Index" class="@NavClass("Categories")">Danh mục</a>
+            <a asp-controller="Budgets" asp-action="Index" class="@NavClass("Budgets")">Hạn mức</a>
+            <a asp-controller="Recurring" asp-action="Index" class="@NavClass("Recurring")">Định kỳ</a>
+          </nav>
+        }
+      </div>
+
+      <div class="flex items-center gap-2">
+        @if (isAuthenticated)
+        {
+          <a asp-controller="Manage" asp-action="Index" class="hidden rounded-xl px-3 py-1.5 text-sm font-medium text-ink hover:bg-soft md:inline" title="Tài khoản">@User.GetDisplayName()</a>
+          <form asp-controller="Account" asp-action="Logout" method="post">
+            <button type="submit" class="btn btn-secondary btn-pill">Đăng xuất</button>
+          </form>
+        }
+        else
+        {
+          <a asp-controller="Account" asp-action="Login" class="btn btn-ghost">Đăng nhập</a>
+          <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-pill">Bắt đầu</a>
+        }
+      </div>
+    </div>
+
+    @if (isAuthenticated)
+    {
+      <nav class="border-t border-line md:hidden" aria-label="Điều hướng chính (di động)">
+        <div class="container-app flex gap-1 overflow-x-auto py-2">
+          <a asp-controller="Dashboard" asp-action="Index" class="@NavClass("Dashboard")">Dashboard</a>
+          <a asp-controller="Expenses" asp-action="Index" class="@NavClass("Expenses")">Chi tiêu</a>
+          <a asp-controller="Categories" asp-action="Index" class="@NavClass("Categories")">Danh mục</a>
+          <a asp-controller="Budgets" asp-action="Index" class="@NavClass("Budgets")">Hạn mức</a>
+          <a asp-controller="Recurring" asp-action="Index" class="@NavClass("Recurring")">Định kỳ</a>
+          <a asp-controller="Manage" asp-action="Index" class="@NavClass("Manage")">Tài khoản</a>
+        </div>
+      </nav>
+    }
+  </header>
+
+  <partial name="_Flash" />
+
+  <main>
+    @RenderBody()
+  </main>
+
+  <footer class="border-t border-line py-8">
+    <div class="container-app flex flex-col items-center justify-between gap-2 text-sm text-muted sm:flex-row">
+      <span>&copy; @DateTime.UtcNow.AddHours(7).Year Spendly. Quản lý chi tiêu cá nhân.</span>
+      <span>Xây dựng bằng ASP.NET Core</span>
+    </div>
+  </footer>
+
+  <script src="~/js/site.js" asp-append-version="true"></script>
+  @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

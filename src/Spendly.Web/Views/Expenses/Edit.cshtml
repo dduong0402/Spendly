@@ -1,0 +1,18 @@
+@model ExpenseFormViewModel
+@{
+    ViewData["Title"] = "Sửa khoản chi";
+    var expenseId = ViewData["ExpenseId"];
+}
+
+<section class="container-app py-10">
+  <div class="card mx-auto max-w-lg">
+    <h1 class="text-2xl">Sửa Khoản Chi</h1>
+    <form asp-action="Edit" asp-route-id="@expenseId" method="post" class="mt-6 space-y-4" novalidate>
+      <partial name="_ExpenseFormFields" model="Model" />
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="btn btn-primary btn-pill">Cập nhật</button>
+        <a asp-action="Index" class="btn btn-secondary btn-pill">Hủy</a>
+      </div>
+    </form>
+  </div>
+</section>

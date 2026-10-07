@@ -1,0 +1,174 @@
+@model BudgetsIndexViewModel
+@{
+    ViewData["Title"] = "Hạn mức";
+
+    // Dữ liệu gợi ý của một kỳ cho <option>: "T7/2026: 2,9 tr|T8/2026: 3 tr|..."
+    string SamplesText(BudgetSuggestion s) =>
+        string.Join("|", s.Samples.Select(x => $"{x.Label}: {MoneyFormatter.FormatCompact(x.Amount)}"));
+}
+
+<section class="container-app py-10">
+  <h1 class="text-2xl sm:text-3xl">Hạn Mức Chi Tiêu</h1>
+  <p class="mt-1 max-w-2xl text-sm">
+    Đặt hạn mức cho tuần hoặc tháng hiện tại. Spendly sẽ cảnh báo kèm lời khuyên khi bạn dùng đến
+    <strong>50%</strong>, <strong>75%</strong>, <strong>90%</strong> và <strong>100%</strong> hạn mức.
+    Vượt hạn mức bạn vẫn ghi chi tiêu bình thường, chỉ nhận thêm thông báo.
+  </p>
+
+  @* ===== Hạn mức tổng ===== *@
+  <div class="mt-8 grid gap-6 md:grid-cols-2">
+    @foreach (var card in Model.Cards)
+    {
+      var status = card.Status;
+      var overallHint = new BudgetSuggestionHint(card.Period, Model.Suggestions.ForOverall(card.Period), $"#amount-{card.Period}");
+      <div class="card">
+        <h2 class="text-lg">@card.Heading</h2>
+
+        @if (status is not null)
+        {
+          <partial name="_BudgetProgress" model="status" />
+        }
+        else
+        {
+          <p class="mt-1 text-sm">Bạn chưa đặt hạn mức @card.PeriodWord.</p>
+        }
+
+        <form asp-action="Set" method="post" class="mt-5 space-y-3">
+          <input type="hidden" name="period" value="@card.Period" />
+          <div>
+            <label class="label" for="amount-@card.Period">Hạn mức @card.PeriodWord (₫)</label>
+            <input id="amount-@card.Period" name="amountInput" class="input" inputmode="numeric" autocomplete="off"
+                   placeholder="Ví dụ: @(card.Period == BudgetPeriod.Week ? "1.000.000" : "4.000.000")"
+                   value="@(status is null ? "" : MoneyFormatter.FormatNumber(status.Limit))" data-money />
+          </div>
+          <partial name="_BudgetSuggestionHint" model="overallHint" />
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="submit" class="btn btn-primary btn-pill">@(status is null ? "Đặt hạn mức" : "Cập nhật")</button>
+          </div>
+        </form>
+
+        @if (status is not null)
+        {
+          <form asp-action="Delete" method="post" class="mt-2" data-confirm="Xóa @(card.Heading.ToLower())?" data-confirm-title="Xóa hạn mức?" data-confirm-note="Bạn có thể đặt lại hạn mức bất cứ lúc nào.">
+            <input type="hidden" name="period" value="@card.Period" />
+            <button type="submit" class="btn btn-ghost px-3 py-1.5 text-danger">Xóa hạn mức</button>
+          </form>
+        }
+      </div>
+    }
+  </div>
+
+  @* ===== Hạn mức theo danh mục ===== *@
+  <h2 class="mt-14 text-2xl">Hạn Mức Theo Danh Mục</h2>
+  <p class="mt-1 max-w-2xl text-sm">
+    Giới hạn riêng cho từng danh mục, ví dụ Ăn uống 2.000.000 ₫ mỗi tháng. Dùng cùng các mốc cảnh báo,
+    và vẫn ghi chi tiêu bình thường khi vượt.
+  </p>
+
+  <div class="card mt-6">
+    <h3 class="text-lg">Thêm hoặc cập nhật hạn mức danh mục</h3>
+    <form asp-action="SetCategory" method="post" class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" novalidate>
+      <div>
+        <label class="label" for="cb-category">Danh mục</label>
+        <select id="cb-category" name="categoryId" class="input">
+          <option value="">-- Chọn danh mục --</option>
+          @foreach (var option in Model.CategoryOptions)
+          {
+            var id = int.Parse(option.Value!);
+            var w = Model.Suggestions.ForCategory(id, BudgetPeriod.Week);
+            var m = Model.Suggestions.ForCategory(id, BudgetPeriod.Month);
+            <option value="@option.Value"
+                    data-w-suggested="@(w?.Suggested)" data-w-saving="@(w?.Saving)" data-w-average="@(w?.Average)" data-w-count="@(w?.PeriodsUsed)" data-w-samples="@(w is null ? "" : SamplesText(w))"
+                    data-m-suggested="@(m?.Suggested)" data-m-saving="@(m?.Saving)" data-m-average="@(m?.Average)" data-m-count="@(m?.PeriodsUsed)" data-m-samples="@(m is null ? "" : SamplesText(m))">@option.Text</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="label" for="cb-period">Kỳ</label>
+        <select id="cb-period" name="period" class="input">
+          <option value="Month">Tháng</option>
+          <option value="Week">Tuần</option>
+        </select>
+      </div>
+      <div>
+        <label class="label" for="cb-amount">Hạn mức (₫)</label>
+        <input id="cb-amount" name="amountInput" class="input" inputmode="numeric" autocomplete="off" placeholder="Ví dụ: 2.000.000" data-money />
+      </div>
+      <div class="flex items-end">
+        <button type="submit" class="btn btn-primary btn-pill">Lưu hạn mức</button>
+      </div>
+      <div id="cb-suggestion" class="hidden sm:col-span-2 lg:col-span-4"></div>
+    </form>
+    <p class="mt-3 text-xs">Chọn danh mục và kỳ đã có hạn mức thì số tiền sẽ được cập nhật.</p>
+  </div>
+
+  @if (Model.CategoryBudgets.Count == 0)
+  {
+    <div class="card mt-6 text-center">
+      <p class="font-semibold text-ink">Chưa có hạn mức theo danh mục</p>
+      <p class="mt-1 text-sm">Thêm hạn mức ở phía trên để theo dõi từng nhóm chi tiêu.</p>
+    </div>
+  }
+  else
+  {
+    <ul class="mt-6 grid gap-6 md:grid-cols-2">
+      @foreach (var item in Model.CategoryBudgets)
+      {
+        var status = item.Status;
+        var periodWord = status.Period == BudgetPeriod.Week ? "tuần" : "tháng";
+        var categoryHint = new BudgetSuggestionHint(status.Period, Model.Suggestions.ForCategory(item.CategoryId, status.Period), $"#cb-amount-{item.CategoryId}-{status.Period}");
+        <li class="card">
+          <div class="flex items-center justify-between gap-3">
+            <partial name="_CategoryChip" model="new CategoryChipViewModel(item.CategoryName, item.CategoryColor, item.CategoryEmoji)" />
+            <span class="badge">Hạn mức @periodWord</span>
+          </div>
+
+          <partial name="_BudgetProgress" model="status" />
+
+          <form asp-action="SetCategory" method="post" class="mt-5 space-y-3">
+            <input type="hidden" name="categoryId" value="@item.CategoryId" />
+            <input type="hidden" name="period" value="@status.Period" />
+            <div>
+              <label class="label" for="@($"cb-amount-{item.CategoryId}-{status.Period}")">Hạn mức @periodWord (₫)</label>
+              <input id="@($"cb-amount-{item.CategoryId}-{status.Period}")" name="amountInput" class="input" inputmode="numeric" autocomplete="off"
+                     value="@MoneyFormatter.FormatNumber(status.Limit)" data-money />
+            </div>
+            <partial name="_BudgetSuggestionHint" model="categoryHint" />
+            <button type="submit" class="btn btn-primary btn-pill">Cập nhật</button>
+          </form>
+
+          <form asp-action="DeleteCategory" method="post" class="mt-2" data-confirm="@($"Xóa hạn mức {periodWord} của {item.CategoryName}?")" data-confirm-title="Xóa hạn mức?" data-confirm-note="Bạn có thể đặt lại hạn mức bất cứ lúc nào.">
+            <input type="hidden" name="categoryId" value="@item.CategoryId" />
+            <input type="hidden" name="period" value="@status.Period" />
+            <button type="submit" class="btn btn-ghost px-3 py-1.5 text-danger">Xóa hạn mức</button>
+          </form>
+        </li>
+      }
+    </ul>
+  }
+
+  <div class="card mt-10">
+    <h2 class="text-lg">Gợi ý hạn mức được tính thế nào?</h2>
+    <ul class="mt-3 list-disc space-y-1 pl-5 text-sm">
+      <li>Lấy trung bình của tối đa <strong>3 tuần hoặc 3 tháng đã trọn vẹn</strong> gần nhất, không tính kỳ đang diễn ra.</li>
+      <li>Chỉ tính các kỳ bắt đầu sau khoản chi đầu tiên của bạn, để không bị kéo thấp bởi thời gian chưa dùng Spendly.</li>
+      <li><strong>Sát thực tế</strong>: trung bình làm tròn lên cho gọn. <strong>Tiết kiệm ~10%</strong>: thấp hơn trung bình một chút để bạn có động lực chi ít hơn.</li>
+      <li>Bấm nút gợi ý chỉ điền số vào ô nhập, bạn vẫn có thể sửa trước khi lưu.</li>
+    </ul>
+  </div>
+
+  <div class="card mt-6">
+    <h2 class="text-lg">Các mốc cảnh báo</h2>
+    <ul class="mt-3 space-y-2 text-sm">
+      <li><span class="badge">50%</span> Đã dùng hơn một nửa: xem lại các khoản chi lớn để cân đối phần còn lại.</li>
+      <li><span class="badge badge-warning">75%</span> Ưu tiên khoản thiết yếu, hoãn những khoản chưa cần thiết.</li>
+      <li><span class="badge badge-warning">90%</span> Sắp chạm hạn mức: chỉ chi khoản thật cần thiết.</li>
+      <li><span class="badge badge-danger">100%</span> Chạm hoặc vượt hạn mức: vẫn ghi bình thường, kèm thông báo vượt hạn mức.</li>
+    </ul>
+    <p class="mt-3 text-xs">Hạn mức tính theo tuần (Thứ Hai đến Chủ Nhật) hoặc tháng dương lịch hiện tại, theo giờ Việt Nam.</p>
+  </div>
+</section>
+
+@section Scripts {
+  <script src="~/js/budgets.js" asp-append-version="true"></script>
+}

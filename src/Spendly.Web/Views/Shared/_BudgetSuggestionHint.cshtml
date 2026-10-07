@@ -1,0 +1,35 @@
+@model BudgetSuggestionHint
+@{
+    var s = Model.Suggestion;
+    var word = Model.Period == BudgetPeriod.Week ? "tuần" : "tháng";
+}
+
+@if (s is null)
+{
+    <p class="mt-2 text-xs">Chưa đủ dữ liệu @word đã qua để gợi ý hạn mức.</p>
+}
+else
+{
+    <div class="mt-3 rounded-xl bg-primary-soft px-4 py-3 text-sm">
+      <p class="font-semibold text-ink">Gợi ý theo lịch sử</p>
+      <p class="mt-1">
+        Trung bình @s.PeriodsUsed @word gần nhất: <strong>@MoneyFormatter.Format(s.Average)</strong>
+      </p>
+      <p class="mt-1 text-xs">
+        @(string.Join(" · ", s.Samples.Select(x => $"{x.Label}: {MoneyFormatter.FormatCompact(x.Amount)}")))
+      </p>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <button type="button" class="btn btn-secondary btn-pill px-3 py-1.5"
+                data-fill-target="@Model.TargetSelector" data-fill-value="@s.Suggested">
+          Sát thực tế: @MoneyFormatter.Format(s.Suggested)
+        </button>
+        @if (s.Saving is { } saving)
+        {
+          <button type="button" class="btn btn-secondary btn-pill px-3 py-1.5"
+                  data-fill-target="@Model.TargetSelector" data-fill-value="@saving">
+            Tiết kiệm ~10%: @MoneyFormatter.Format(saving)
+          </button>
+        }
+      </div>
+    </div>
+}

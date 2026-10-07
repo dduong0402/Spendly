@@ -1,0 +1,65 @@
+@model RecurringFormViewModel
+@{
+    var detail = ViewData["Detail"] as RecurringExpenseDetail;
+    var isEdit = detail is not null;
+}
+
+<div asp-validation-summary="ModelOnly" class="alert-danger"></div>
+
+<div>
+  <label asp-for="Name" class="label"></label>
+  <input asp-for="Name" class="input" maxlength="100" placeholder="Ví dụ: Tiền nhà, Internet, Netflix" />
+  <span asp-validation-for="Name" class="field-error"></span>
+</div>
+
+<div>
+  <label asp-for="AmountInput" class="label"></label>
+  <input asp-for="AmountInput" class="input" inputmode="numeric" autocomplete="off" placeholder="Ví dụ: 3.500.000" data-money />
+  <span asp-validation-for="AmountInput" class="field-error"></span>
+</div>
+
+<div>
+  <label asp-for="CategoryId" class="label"></label>
+  <select asp-for="CategoryId" asp-items="Model.Categories" class="input">
+    <option value="">-- Chọn danh mục --</option>
+  </select>
+  <span asp-validation-for="CategoryId" class="field-error"></span>
+</div>
+
+@if (isEdit)
+{
+  <div class="rounded-xl bg-soft px-4 py-3 text-sm">
+    <p><span class="font-semibold text-ink">Chu kỳ:</span> @RecurringLabels.Frequency(detail!.Frequency), @RecurringLabels.Schedule(detail.Frequency, detail.StartDate).ToLower()</p>
+    <p class="mt-1"><span class="font-semibold text-ink">Bắt đầu:</span> @detail.StartDate.ToString("dd/MM/yyyy")</p>
+    <p class="mt-1 text-xs">Chu kỳ và ngày bắt đầu không đổi được. Muốn đổi, hãy xóa rồi tạo khoản định kỳ mới.</p>
+  </div>
+}
+else
+{
+  <div>
+    <label asp-for="Frequency" class="label"></label>
+    <select asp-for="Frequency" class="input">
+      <option value="Weekly">Hằng tuần</option>
+      <option value="Monthly">Hằng tháng</option>
+      <option value="Yearly">Hằng năm</option>
+    </select>
+    <span asp-validation-for="Frequency" class="field-error"></span>
+  </div>
+
+  <div>
+    <label asp-for="StartDate" class="label"></label>
+    <input asp-for="StartDate" type="date" class="input" />
+    <span asp-validation-for="StartDate" class="field-error"></span>
+    <p class="mt-1.5 text-xs">
+      Ngày đến hạn đầu tiên, các lần sau bám theo ngày này (ví dụ ngày 5 hằng tháng).
+      Chọn ngày trong quá khứ (tối đa 1 năm) thì Spendly ghi bù các lần đã qua.
+    </p>
+  </div>
+}
+
+<div>
+  <label asp-for="EndDate" class="label"></label>
+  <input asp-for="EndDate" type="date" class="input" />
+  <span asp-validation-for="EndDate" class="field-error"></span>
+  <p class="mt-1.5 text-xs">Để trống nếu khoản này lặp mãi (có thể đặt ngày kết thúc sau).</p>
+</div>

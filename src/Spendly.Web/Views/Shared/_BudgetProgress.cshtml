@@ -1,0 +1,50 @@
+@model BudgetStatus
+@{
+    var fill = Model.Level switch
+    {
+        BudgetLevel.Safe => "bg-success",
+        BudgetLevel.Half => "bg-primary",
+        BudgetLevel.ThreeQuarters or BudgetLevel.Nearly => "bg-warning",
+        _ => "bg-danger"
+    };
+    var alertClass = Model.Severity switch
+    {
+        "info" => "alert-info",
+        "warning" => "alert-warning",
+        "danger" => "alert-danger",
+        _ => null
+    };
+}
+
+<div class="mt-2">
+  <div class="flex items-baseline justify-between gap-3">
+    <p class="text-sm">@Model.RangeLabel</p>
+    <span class="stat-number text-sm">@Model.PercentText%</span>
+  </div>
+
+  <div class="relative mt-2 h-3 overflow-hidden rounded-full bg-soft" role="progressbar" aria-label="@Model.PeriodLabel" aria-valuemin="0" aria-valuemax="100" aria-valuenow="@Model.BarPercent">
+    <div class="h-3 rounded-full @fill" style="width:@(Model.BarPercent)%"></div>
+    @* Vạch mốc cảnh báo 50% - 75% - 90% *@
+    <span class="absolute inset-y-0 w-px bg-white/80" style="left:50%"></span>
+    <span class="absolute inset-y-0 w-px bg-white/80" style="left:75%"></span>
+    <span class="absolute inset-y-0 w-px bg-white/80" style="left:90%"></span>
+  </div>
+
+  <div class="mt-2 flex flex-wrap justify-between gap-x-4 gap-y-1 text-sm">
+    <span>Đã chi <strong class="stat-number">@MoneyFormatter.Format(Model.Spent)</strong></span>
+    <span>Hạn mức <strong class="stat-number">@MoneyFormatter.Format(Model.Limit)</strong></span>
+  </div>
+
+  @if (alertClass is not null)
+  {
+    <div class="@alertClass mt-3" role="status">
+      <p class="font-semibold">@Model.Title</p>
+      <p class="mt-1">@Model.Message</p>
+      <p class="mt-1">@Model.Advice</p>
+    </div>
+  }
+  else
+  {
+    <p class="mt-3 text-sm">@Model.Message @Model.Advice</p>
+  }
+</div>

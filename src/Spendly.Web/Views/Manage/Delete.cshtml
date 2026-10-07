@@ -1,0 +1,42 @@
+@model DeleteAccountViewModel
+@{
+    ViewData["Title"] = "Xóa tài khoản";
+    var summary = ViewData["Summary"] as AccountDataSummary ?? new AccountDataSummary(0, 0, 0, 0);
+}
+
+<section class="container-app py-10">
+  <div class="card mx-auto max-w-lg border-danger">
+    <h1 class="text-2xl text-danger">Xóa Tài Khoản</h1>
+    <p class="mt-2 text-sm">
+      Tài khoản và <strong>toàn bộ dữ liệu</strong> sẽ bị xóa vĩnh viễn, không khôi phục được:
+    </p>
+    <ul class="mt-3 list-disc space-y-1 pl-5 text-sm">
+      <li>@summary.Expenses khoản chi</li>
+      <li>@summary.Categories danh mục riêng</li>
+      <li>@summary.RecurringExpenses khoản chi định kỳ</li>
+      <li>@summary.Budgets hạn mức</li>
+    </ul>
+    <p class="mt-3 text-sm">
+      Muốn giữ lại bản sao? <a asp-action="Index" class="font-semibold text-primary underline">Tải dữ liệu</a> trước khi xóa.
+    </p>
+
+    <form asp-action="Delete" method="post" class="mt-6 space-y-4" novalidate
+          data-confirm="Xóa vĩnh viễn tài khoản và toàn bộ dữ liệu?"
+          data-confirm-title="Xóa tài khoản?"
+          data-confirm-note="Bạn sẽ không thể khôi phục lại."
+          data-confirm-ok="Xóa vĩnh viễn">
+      <div asp-validation-summary="ModelOnly" class="alert-danger"></div>
+
+      <div>
+        <label asp-for="Password" class="label">Nhập mật khẩu để xác nhận</label>
+        <input asp-for="Password" class="input" autocomplete="current-password" />
+        <span asp-validation-for="Password" class="field-error"></span>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="btn btn-danger btn-pill">Xóa tài khoản</button>
+        <a asp-action="Index" class="btn btn-secondary btn-pill">Hủy</a>
+      </div>
+    </form>
+  </div>
+</section>

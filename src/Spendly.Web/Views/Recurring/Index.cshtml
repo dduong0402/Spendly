@@ -1,0 +1,111 @@
+@model RecurringIndexViewModel
+@{
+    ViewData["Title"] = "Khoản chi định kỳ";
+}
+
+<section class="container-app py-10">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl sm:text-3xl">Khoản Chi Định Kỳ</h1>
+      <p class="mt-1 max-w-2xl text-sm">
+        Tiền nhà, internet, đăng ký dịch vụ... Khai báo một lần, Spendly tự ghi khoản chi mỗi khi đến hạn.
+      </p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary btn-pill">+ Thêm khoản định kỳ</a>
+  </div>
+
+  @if (Model.Items.Count == 0)
+  {
+    <div class="card mt-6 text-center">
+      <p class="font-semibold text-ink">Chưa có khoản chi định kỳ nào</p>
+      <p class="mt-1 text-sm">Ví dụ: Tiền nhà 3.500.000 ₫ ngày 5 hằng tháng, Internet 250.000 ₫ hằng tháng, Netflix hằng năm.</p>
+      <a asp-action="Create" class="btn btn-primary btn-pill mt-4">Thêm khoản định kỳ đầu tiên</a>
+    </div>
+  }
+  else
+  {
+    <div class="card mt-6 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <p class="text-sm">Ước tính mỗi tháng (@Model.ActiveCount khoản đang chạy)</p>
+        <p class="stat-number text-2xl">@MoneyFormatter.Format(Model.MonthlyTotal)</p>
+      </div>
+      <p class="max-w-sm text-xs">Khoản hằng tuần quy đổi theo 52 tuần/năm, khoản hằng năm chia đều cho 12 tháng.</p>
+    </div>
+
+    <ul class="mt-6 grid gap-6 md:grid-cols-2">
+      @foreach (var item in Model.Items)
+      {
+        var running = item.IsActive && !item.IsFinished;
+        <li class="card @(running ? "" : "opacity-80")">
+          <div class="flex items-start justify-between gap-3">
+            <partial name="_CategoryChip" model="new CategoryChipViewModel(item.CategoryName, item.CategoryColor, item.CategoryIcon)" />
+            @if (item.IsFinished)
+            {
+              <span class="badge">Đã kết thúc</span>
+            }
+            else if (!item.IsActive)
+            {
+              <span class="badge badge-warning">Tạm dừng</span>
+            }
+            else
+            {
+              <span class="badge">@RecurringLabels.Frequency(item.Frequency)</span>
+            }
+          </div>
+
+          <h2 class="mt-3 text-lg">@item.Name</h2>
+          <p class="stat-number mt-1">@MoneyFormatter.Format(item.Amount)</p>
+          <p class="mt-1 text-sm">@RecurringLabels.Schedule(item.Frequency, item.StartDate)</p>
+
+          <dl class="mt-3 space-y-1 text-sm">
+            @if (running)
+            {
+              <div class="flex justify-between gap-3"><dt>Lần tới</dt><dd class="font-semibold text-ink">@item.NextDueDate.ToString("dd/MM/yyyy")</dd></div>
+            }
+            @if (item.EndDate is { } end)
+            {
+              <div class="flex justify-between gap-3"><dt>Kết thúc</dt><dd>@end.ToString("dd/MM/yyyy")</dd></div>
+            }
+            <div class="flex justify-between gap-3">
+              <dt>Đã ghi</dt>
+              <dd>
+                @item.GeneratedCount khoản
+                @if (item.GeneratedCount > 0)
+                {
+                  <a asp-controller="Expenses" asp-action="Index" asp-route-q="@item.Name" class="ml-1 font-semibold text-primary underline">xem</a>
+                }
+              </dd>
+            </div>
+          </dl>
+
+          <div class="mt-4 flex flex-wrap items-center gap-1">
+            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-secondary px-3 py-1.5">Sửa</a>
+            @if (!item.IsFinished)
+            {
+              <form asp-action="Toggle" asp-route-id="@item.Id" method="post">
+                <input type="hidden" name="active" value="@((!item.IsActive).ToString().ToLower())" />
+                <button type="submit" class="btn btn-ghost px-3 py-1.5">@(item.IsActive ? "Tạm dừng" : "Tiếp tục")</button>
+              </form>
+            }
+            <form asp-action="Delete" asp-route-id="@item.Id" method="post"
+                  data-confirm="@($"Xóa khoản định kỳ “{item.Name}”?")" data-confirm-title="Xóa khoản định kỳ?"
+                  data-confirm-note="Các khoản chi đã ghi vẫn được giữ lại.">
+              <button type="submit" class="btn btn-ghost px-3 py-1.5 text-danger">Xóa</button>
+            </form>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+
+  <div class="card mt-10">
+    <h2 class="text-lg">Cách hoạt động</h2>
+    <ul class="mt-3 list-disc space-y-1 pl-5 text-sm">
+      <li>Mỗi khi bạn mở Spendly, các khoản đã đến hạn được ghi tự động, đúng ngày đến hạn. Vắng vài ngày hay vài tuần thì lần sau mở app vẫn được ghi bù đủ.</li>
+      <li>Khoản chi được tạo ra là khoản chi bình thường: xem ở mục Chi tiêu (có nhãn "Định kỳ"), sửa hoặc xóa riêng từng lần được, và tính vào thống kê, hạn mức.</li>
+      <li>Hằng tháng bám theo ngày bắt đầu: ngày 31 ở tháng chỉ có 30 ngày thì ghi vào ngày cuối tháng, tháng sau vẫn là ngày 31.</li>
+      <li>Đổi số tiền chỉ áp dụng cho các lần sau. Tạm dừng rồi tiếp tục thì bỏ qua các lần trong lúc dừng.</li>
+      <li>Xóa một khoản chi đã ghi không làm nó được ghi lại. Xóa khoản định kỳ cũng không xóa các khoản chi đã ghi.</li>
+    </ul>
+  </div>
+</section>

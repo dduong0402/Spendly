@@ -1,0 +1,35 @@
+@model CategoryFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="alert-danger"></div>
+
+<div>
+  <label asp-for="Name" class="label"></label>
+  <input asp-for="Name" class="input" maxlength="50" placeholder="Ví dụ: Cà phê" />
+  <span asp-validation-for="Name" class="field-error"></span>
+</div>
+
+<div>
+  <label asp-for="Icon" class="label"></label>
+  <div class="relative">
+    <div class="flex flex-wrap items-center gap-3">
+      <span id="icon-preview" class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl" style="background-color:@(Model.Color)26" aria-hidden="true">@Model.Icon</span>
+      <input asp-for="Icon" class="input w-24 text-center text-xl" maxlength="30" autocomplete="off" aria-describedby="icon-hint" />
+      <button type="button" id="icon-picker-toggle" class="btn btn-secondary" aria-expanded="false" aria-controls="icon-picker-panel">Chọn biểu tượng</button>
+    </div>
+    <div id="icon-picker-panel" class="absolute left-0 top-full z-30 mt-2 hidden w-full max-w-sm overflow-hidden rounded-2xl border border-line bg-white shadow-card">
+      <emoji-picker id="icon-picker" data-source="/lib/emoji-picker-element/data.json"></emoji-picker>
+    </div>
+  </div>
+  <p id="icon-hint" class="mt-1.5 text-xs">
+    Chọn đúng 1 biểu tượng bất kỳ. Bảng chọn tìm kiếm bằng tiếng Anh (ví dụ "coffee", "cat").
+    Bạn cũng có thể dán emoji vào ô, hoặc nhấn <kbd class="rounded border border-line px-1">Win</kbd> + <kbd class="rounded border border-line px-1">.</kbd> để mở bảng emoji của Windows.
+  </p>
+  <span id="icon-client-error" class="field-error hidden">Vui lòng chọn một emoji.</span>
+  <span asp-validation-for="Icon" class="field-error"></span>
+</div>
+
+<div>
+  <label asp-for="Color" class="label"></label>
+  <input asp-for="Color" type="color" class="h-11 w-16 cursor-pointer rounded-[10px] border border-line bg-white p-1" />
+  <span asp-validation-for="Color" class="field-error"></span>
+</div>

@@ -1,0 +1,29 @@
+@model ExpenseFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="alert-danger"></div>
+
+<div>
+  <label asp-for="AmountInput" class="label"></label>
+  <input asp-for="AmountInput" class="input" inputmode="numeric" autocomplete="off" placeholder="Ví dụ: 50.000" data-money />
+  <span asp-validation-for="AmountInput" class="field-error"></span>
+</div>
+
+<div>
+  <label asp-for="CategoryId" class="label"></label>
+  <select asp-for="CategoryId" asp-items="Model.Categories" class="input">
+    <option value="">-- Chọn danh mục --</option>
+  </select>
+  <span asp-validation-for="CategoryId" class="field-error"></span>
+</div>
+
+<div>
+  <label asp-for="SpentAt" class="label"></label>
+  <input asp-for="SpentAt" type="date" class="input" />
+  <span asp-validation-for="SpentAt" class="field-error"></span>
+</div>
+
+<div>
+  <label asp-for="Note" class="label"></label>
+  <input asp-for="Note" class="input" maxlength="500" placeholder="Ví dụ: Cà phê với bạn" />
+  <span asp-validation-for="Note" class="field-error"></span>
+</div>

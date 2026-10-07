@@ -1,0 +1,30 @@
+@using System.Text.Json
+@if (TempData["Success"] is string success)
+{
+  <div class="container-app pt-4"><div class="alert-success" role="status">@success</div></div>
+}
+@if (TempData["Error"] is string error)
+{
+  <div class="container-app pt-4"><div class="alert-danger" role="alert">@error</div></div>
+}
+@if (TempData["BudgetAlerts"] is string alertsJson)
+{
+  var alerts = JsonSerializer.Deserialize<List<BudgetAlertMessage>>(alertsJson) ?? new List<BudgetAlertMessage>();
+  foreach (var alert in alerts)
+  {
+    var alertClass = alert.Severity switch
+    {
+      "danger" => "alert-danger",
+      "warning" => "alert-warning",
+      _ => "alert-info"
+    };
+    <div class="container-app pt-4">
+      <div class="@alertClass" role="alert">
+        <p class="font-semibold">@alert.Title</p>
+        <p class="mt-1">@alert.Message</p>
+        <p class="mt-1">@alert.Advice</p>
+        <a asp-controller="Budgets" asp-action="Index" class="mt-2 inline-block font-semibold underline">Xem hạn mức</a>
+      </div>
+    </div>
+  }
+}

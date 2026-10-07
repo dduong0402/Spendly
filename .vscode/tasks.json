@@ -1,0 +1,55 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/Spendly.sln",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": { "kind": "build", "isDefault": true }
+    },
+    {
+      "label": "test",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["test", "${workspaceFolder}/Spendly.sln"],
+      "problemMatcher": "$msCompile",
+      "group": { "kind": "test", "isDefault": true }
+    },
+    {
+      "label": "watch",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["watch", "run", "--project", "${workspaceFolder}/src/Spendly.Web"],
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "tailwind-watch",
+      "type": "shell",
+      "command": "tailwindcss -i ./Styles/input.css -o ./wwwroot/css/site.css --watch",
+      "options": { "cwd": "${workspaceFolder}/src/Spendly.Web" },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "tailwind-build",
+      "type": "shell",
+      "command": "tailwindcss -i ./Styles/input.css -o ./wwwroot/css/site.css --minify",
+      "options": { "cwd": "${workspaceFolder}/src/Spendly.Web" },
+      "problemMatcher": []
+    },
+    {
+      "label": "dev",
+      "dependsOn": ["watch", "tailwind-watch"],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+@model ManageIndexViewModel
+@{
+    ViewData["Title"] = "Tài khoản";
+}
+
+<section class="container-app py-10">
+  <h1 class="text-2xl sm:text-3xl">Tài Khoản</h1>
+  <p class="mt-1 text-sm">Quản lý thông tin, bảo mật và dữ liệu của bạn.</p>
+
+  <div class="mt-8 grid gap-6 md:grid-cols-2">
+    <div class="card">
+      <h2 class="text-lg">Thông tin</h2>
+      <dl class="mt-3 space-y-1 text-sm">
+        <div class="flex justify-between gap-3"><dt>Email</dt><dd class="font-semibold text-ink">@Model.Email</dd></div>
+        @if (Model.MemberSince is { } since)
+        {
+          <div class="flex justify-between gap-3"><dt>Tham gia từ</dt><dd>@since.ToString("dd/MM/yyyy")</dd></div>
+        }
+      </dl>
+
+      <form asp-action="UpdateProfile" method="post" class="mt-5 space-y-3" novalidate>
+        <div asp-validation-summary="ModelOnly" class="alert-danger"></div>
+        <div>
+          <label asp-for="Profile.DisplayName" class="label"></label>
+          <input asp-for="Profile.DisplayName" class="input" maxlength="100" autocomplete="name" />
+          <span asp-validation-for="Profile.DisplayName" class="field-error"></span>
+        </div>
+        <button type="submit" class="btn btn-primary btn-pill">Lưu tên hiển thị</button>
+      </form>
+    </div>
+
+    <div class="space-y-6">
+      <div class="card">
+        <h2 class="text-lg">Bảo mật</h2>
+        <p class="mt-1 text-sm">Đổi mật khẩu định kỳ giúp tài khoản an toàn hơn. Sau khi đổi, các thiết bị khác sẽ được đăng xuất.</p>
+        <a asp-action="ChangePassword" class="btn btn-secondary btn-pill mt-4">Đổi mật khẩu</a>
+      </div>
+
+      <div class="card">
+        <h2 class="text-lg">Dữ liệu của bạn</h2>
+        <p class="mt-1 text-sm">
+          Tải về bản sao dữ liệu của bạn bất cứ lúc nào. CSV mở được bằng Excel (chỉ các khoản chi),
+          JSON gồm toàn bộ dữ liệu: khoản chi, danh mục riêng, hạn mức và khoản định kỳ.
+        </p>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <a asp-action="ExportCsv" class="btn btn-secondary btn-pill">Tải CSV (Excel)</a>
+          <a asp-action="ExportJson" class="btn btn-secondary btn-pill">Tải JSON (đầy đủ)</a>
+        </div>
+      </div>
+
+      <div class="card border-danger">
+        <h2 class="text-lg text-danger">Xóa tài khoản</h2>
+        <p class="mt-1 text-sm">Xóa vĩnh viễn tài khoản và toàn bộ dữ liệu. Hành động này không thể hoàn tác.</p>
+        <a asp-action="Delete" class="btn btn-secondary btn-pill mt-4 text-danger">Xóa tài khoản...</a>
+      </div>
+    </div>
+  </div>
+</section>

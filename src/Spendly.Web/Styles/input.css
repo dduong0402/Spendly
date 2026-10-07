@@ -1,0 +1,237 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #ffffff;
+    --bg-soft: #f5f8ff;
+    --surface: #ffffff;
+    --border: #e6ebf3;
+    --text: #0b1b33;
+    --text-muted: #4b5b76;
+    --primary: #1f6bff;
+    --primary-hover: #1657d6;
+    --primary-soft: #e8f0ff;
+    --sky-1: #cfe3ff;
+    --sky-2: #8ebbff;
+    --sky-3: #eaf3ff;
+    --success: #16a34a;
+    --success-soft: #e7f6ec;
+    --danger: #e5484d;
+    --danger-soft: #fdecec;
+    --warning: #f59e0b;
+    --warning-soft: #fef3dc;
+  }
+
+  html {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply min-h-screen text-ink;
+    background-color: var(--bg);
+    line-height: 1.6;
+  }
+
+  /* Nền "mây" xanh dùng chung cho MỌI trang: cố định theo khung nhìn, nằm dưới nội dung. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(60% 50% at 50% 40%, var(--sky-2) 0%, var(--sky-1) 45%, var(--bg) 100%);
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-bold text-ink;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  p {
+    @apply text-muted;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}
+
+@layer base {
+  /* Bảng chọn emoji (custom element) dùng cùng design tokens */
+  emoji-picker {
+    --background: var(--surface);
+    --border-color: var(--border);
+    --indicator-color: var(--primary);
+    --input-border-color: var(--border);
+    --input-font-color: var(--text);
+    --outline-color: var(--primary);
+    --num-columns: 8;
+    width: 100%;
+    height: 22rem;
+  }
+
+  /* Người dùng bật "giảm chuyển động" thì tắt hiệu ứng */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .container-app {
+    @apply mx-auto w-full max-w-app px-4 sm:px-6;
+  }
+
+  /* Nền "mây" xanh da trời dùng cho hero và phía sau dashboard */
+  .cloud-bg {
+    background: radial-gradient(60% 50% at 50% 40%, var(--sky-2) 0%, var(--sky-1) 45%, var(--bg) 100%);
+  }
+
+  /* ---- Button ---- */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition duration-200 ease-out disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply bg-primary text-white shadow-card hover:bg-primary-hover;
+  }
+  .btn-secondary {
+    @apply border border-line bg-white text-ink hover:bg-soft;
+  }
+  .btn-ghost {
+    @apply text-muted hover:bg-soft hover:text-ink;
+  }
+  .btn-danger {
+    @apply bg-danger text-white shadow-card hover:opacity-90;
+  }
+  .btn-pill {
+    @apply rounded-full;
+  }
+  .btn-lg {
+    @apply px-7 py-3 text-base;
+  }
+
+  /* ---- Card ---- */
+  .card {
+    @apply rounded-2xl border border-line bg-white p-5 shadow-card sm:p-6;
+  }
+
+  /* ---- Badge / Chip ---- */
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary;
+  }
+  .badge-success {
+    @apply bg-success-soft text-success;
+  }
+  .badge-danger {
+    @apply bg-danger-soft text-danger;
+  }
+
+  /* ---- Segmented control (Ngày / Tuần / Tháng) ---- */
+  .segmented {
+    @apply inline-flex rounded-full border border-line bg-soft p-1;
+  }
+  .segmented-item {
+    @apply rounded-full px-4 py-1.5 text-sm font-medium text-muted transition duration-200 ease-out hover:text-ink;
+  }
+  .segmented-item[aria-selected='true'] {
+    @apply bg-white text-ink shadow-card;
+  }
+
+  /* ---- Form ---- */
+  .input {
+    @apply w-full rounded-[10px] border border-line bg-white px-3.5 py-2.5 text-sm text-ink transition duration-200 ease-out placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-ink;
+  }
+
+  /* ---- Số liệu ---- */
+  .stat-number {
+    @apply font-bold text-ink;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  /* ---- Skeleton loading ---- */
+  .skeleton {
+    @apply animate-pulse rounded-lg bg-soft;
+  }
+
+
+  /* ---- Cảnh báo & validation ---- */
+  .alert-danger {
+    @apply rounded-xl border border-danger bg-danger-soft px-4 py-3 text-sm text-danger;
+  }
+  .validation-summary-valid {
+    @apply hidden;
+  }
+  .field-error {
+    @apply mt-1.5 block text-sm text-danger;
+  }
+  .input-validation-error {
+    @apply border-danger focus:border-danger focus:ring-danger-soft;
+  }
+
+  .alert-info {
+    @apply rounded-xl border border-primary bg-primary-soft px-4 py-3 text-sm text-ink;
+  }
+  .alert-warning {
+    @apply rounded-xl border border-warning bg-warning-soft px-4 py-3 text-sm text-ink;
+  }
+  .badge-warning {
+    @apply bg-warning-soft text-ink;
+  }
+  .alert-success {
+    @apply rounded-xl border border-success bg-success-soft px-4 py-3 text-sm text-success;
+  }
+}
+
+
+/* ---- Hộp thoại xác nhận ---- */
+dialog.confirm-dialog {
+  width: min(92vw, 24rem);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  background: #fff;
+  color: var(--text);
+  box-shadow: 0 24px 60px rgba(11, 27, 51, 0.25);
+  animation: confirm-in 0.18s ease-out;
+}
+dialog.confirm-dialog::backdrop {
+  background: rgba(11, 27, 51, 0.45);
+  backdrop-filter: blur(3px);
+}
+.confirm-body { padding: 1.75rem 1.5rem 1rem; text-align: center; }
+.confirm-icon {
+  margin: 0 auto 1rem;
+  display: flex; height: 3rem; width: 3rem; align-items: center; justify-content: center;
+  border-radius: 9999px; background: var(--danger-soft); color: var(--danger);
+  font-size: 1.5rem; font-weight: 700;
+}
+.confirm-title { font-size: 1.125rem; font-weight: 700; }
+.confirm-message { margin-top: 0.5rem; font-size: 0.9375rem; color: var(--text); }
+.confirm-note { margin-top: 0.25rem; font-size: 0.8125rem; color: var(--text-muted); }
+.confirm-actions { display: flex; gap: 0.75rem; padding: 1rem 1.5rem 1.5rem; }
+.confirm-actions .btn { flex: 1 1 0; }
+@keyframes confirm-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  dialog.confirm-dialog { animation: none; }
+}

@@ -1,0 +1,143 @@
+@using Spendly.Web.Services
+@inject TimeProvider Clock
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<section id="dashboard" class="container-app py-10" aria-busy="true"
+         data-today="@Clock.GetToday().ToString("yyyy-MM-dd")"
+         data-min-date="@ExpenseRules.MinDate.ToString("yyyy-MM-dd")">
+  <div>
+    <h1 class="text-2xl sm:text-3xl">Xin chào, @User.GetDisplayName()</h1>
+    <p class="mt-1 text-sm">Tổng quan chi tiêu của bạn.</p>
+  </div>
+
+  @* ----- Hạn mức của tuần/tháng hiện tại ----- *@
+  @await Component.InvokeAsync("BudgetSummary")
+
+  <div class="mt-10 flex flex-wrap items-end justify-between gap-4">
+    <h2 class="text-xl">Thống kê chi tiêu</h2>
+    <div class="segmented" role="tablist" aria-label="Chọn kỳ thống kê" id="period-tabs">
+      <button type="button" role="tab" class="segmented-item" data-period="day" aria-selected="false">Ngày</button>
+      <button type="button" role="tab" class="segmented-item" data-period="week" aria-selected="true">Tuần</button>
+      <button type="button" role="tab" class="segmented-item" data-period="month" aria-selected="false">Tháng</button>
+    </div>
+  </div>
+
+  @* ----- Chọn kỳ: mũi tên + chọn nhanh ----- *@
+  <div id="period-bar" class="relative mt-6 flex flex-wrap items-center gap-2">
+    <button type="button" id="period-prev" class="btn btn-secondary btn-pill px-3.5" aria-label="Kỳ trước" disabled>‹</button>
+    <button type="button" id="range-button" class="btn btn-secondary btn-pill min-w-[12rem] gap-2" aria-haspopup="dialog" aria-expanded="false" aria-controls="period-picker">
+      <span aria-hidden="true">📅</span>
+      <span id="range-label" aria-live="polite">&nbsp;</span>
+      <span aria-hidden="true" class="text-muted">▾</span>
+    </button>
+    <button type="button" id="period-next" class="btn btn-secondary btn-pill px-3.5" aria-label="Kỳ sau" disabled>›</button>
+    <button type="button" id="period-today" class="btn btn-ghost btn-pill hidden">Về hôm nay</button>
+    <span id="period-current" class="badge hidden">Hiện tại</span>
+
+    <div id="period-picker" role="dialog" aria-label="Chọn nhanh kỳ thống kê"
+         class="absolute left-0 top-full z-30 mt-2 hidden w-72 rounded-2xl border border-line bg-white p-4 shadow-card">
+      <div id="picker-month" class="hidden">
+        <label class="label" for="picker-year">Năm</label>
+        <select id="picker-year" class="input"></select>
+        <div id="picker-months" class="mt-3 grid grid-cols-4 gap-2"></div>
+      </div>
+      <div id="picker-date" class="hidden">
+        <label id="picker-date-label" class="label" for="picker-date-input">Chọn ngày</label>
+        <input id="picker-date-input" type="date" class="input" />
+        <p id="picker-date-hint" class="mt-2 text-xs"></p>
+      </div>
+    </div>
+  </div>
+
+  <div id="dashboard-error" class="alert-danger mt-6 hidden" role="alert">
+    <span>Không tải được dữ liệu thống kê.</span>
+    <button type="button" id="dashboard-retry" class="ml-2 font-semibold underline">Thử lại</button>
+  </div>
+
+  @* ----- Khung xương khi đang tải lần đầu ----- *@
+  <div id="dashboard-loading" class="mt-6 space-y-4" aria-hidden="true">
+    <div class="grid gap-4 sm:grid-cols-3">
+      @for (var i = 0; i < 3; i++)
+      {
+        <div class="card p-4 sm:p-5">
+          <div class="skeleton h-4 w-24"></div>
+          <div class="skeleton mt-3 h-8 w-36"></div>
+          <div class="skeleton mt-3 h-5 w-28"></div>
+        </div>
+      }
+    </div>
+    <div class="grid gap-6 lg:grid-cols-5">
+      <div class="card lg:col-span-3"><div class="skeleton h-64 w-full"></div></div>
+      <div class="card lg:col-span-2"><div class="skeleton mx-auto h-44 w-44 rounded-full"></div></div>
+    </div>
+  </div>
+
+  <div id="dashboard-body" class="hidden transition-opacity duration-200">
+    @* ----- Thẻ tổng ----- *@
+    <div class="mt-6 grid gap-4 sm:grid-cols-3">
+      <div class="card p-4 sm:p-5">
+        <p class="text-sm">Tổng chi</p>
+        <p id="stat-total" class="stat-number mt-1 text-2xl">0 ₫</p>
+        <span id="stat-change" class="badge mt-2 hidden"></span>
+      </div>
+      <div class="card p-4 sm:p-5">
+        <p id="stat2-label" class="text-sm">Trung bình mỗi ngày</p>
+        <p id="stat2-value" class="stat-number mt-1 text-2xl">0 ₫</p>
+        <span id="stat2-hint" class="badge mt-2"></span>
+      </div>
+      <div class="card p-4 sm:p-5">
+        <p class="text-sm">Số giao dịch</p>
+        <p id="stat-count" class="stat-number mt-1 text-2xl">0</p>
+        <span id="stat-count-hint" class="badge mt-2"></span>
+      </div>
+    </div>
+
+    @* ----- Trạng thái trống ----- *@
+    <div id="dashboard-empty" class="card mt-6 hidden text-center">
+      <p class="font-semibold text-ink">Chưa có khoản chi nào trong kỳ này</p>
+      <p class="mt-1 text-sm">Hãy ghi lại khoản chi để xem biểu đồ và thống kê.</p>
+      <a asp-controller="Expenses" asp-action="Create" class="btn btn-primary btn-pill mt-4">Thêm khoản chi</a>
+    </div>
+
+    <div id="dashboard-content" class="hidden">
+      @* ----- Biểu đồ ----- *@
+      <div class="mt-6 grid gap-6 lg:grid-cols-5">
+        <div class="card lg:col-span-3">
+          <h2 id="trend-title" class="text-lg">Xu hướng chi tiêu</h2>
+          <div class="relative mt-4 h-64">
+            <canvas id="trend-chart" role="img" aria-label="Biểu đồ đường xu hướng chi tiêu"></canvas>
+          </div>
+        </div>
+        <div class="card lg:col-span-2">
+          <h2 class="text-lg">Theo danh mục</h2>
+          <div class="relative mx-auto mt-4 h-44 w-44">
+            <canvas id="category-chart" role="img" aria-label="Biểu đồ tròn chi tiêu theo danh mục"></canvas>
+          </div>
+          <ul id="category-legend" class="mt-4 space-y-2"></ul>
+        </div>
+      </div>
+
+      @* ----- Danh sách ----- *@
+      <div class="mt-6 grid gap-6 lg:grid-cols-2">
+        <div class="card">
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg">Khoản chi gần nhất</h2>
+            <a asp-controller="Expenses" asp-action="Index" class="text-sm font-semibold text-primary hover:underline">Xem tất cả</a>
+          </div>
+          <ul id="recent-list" class="mt-3 divide-y divide-line"></ul>
+        </div>
+        <div class="card">
+          <h2 class="text-lg">Khoản chi lớn nhất</h2>
+          <ul id="top-list" class="mt-3 divide-y divide-line"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+@section Scripts {
+  <script src="~/lib/chart.js/chart.umd.js"></script>
+  <script src="~/js/dashboard.js" asp-append-version="true"></script>
+}

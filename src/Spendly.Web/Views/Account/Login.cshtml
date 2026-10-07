@@ -1,0 +1,45 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<section class="min-h-[calc(100vh-4rem)] py-12 sm:py-20">
+  <div class="container-app">
+    <div class="card mx-auto max-w-md">
+      <h1 class="text-2xl sm:text-3xl">Đăng Nhập</h1>
+      <p class="mt-1 text-sm">Chào mừng bạn quay lại Spendly.</p>
+
+      <form asp-action="Login" method="post" class="mt-6 space-y-4" novalidate>
+        <input type="hidden" asp-for="ReturnUrl" />
+        <div asp-validation-summary="ModelOnly" class="alert-danger"></div>
+
+        <div>
+          <label asp-for="Email" class="label"></label>
+          <input asp-for="Email" class="input" type="email" autocomplete="email" placeholder="ban@example.com" />
+          <span asp-validation-for="Email" class="field-error"></span>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between">
+            <label asp-for="Password" class="label"></label>
+            <a asp-action="ForgotPassword" class="text-sm font-semibold text-primary hover:underline">Quên mật khẩu?</a>
+          </div>
+          <input asp-for="Password" class="input" autocomplete="current-password" placeholder="••••••••" />
+          <span asp-validation-for="Password" class="field-error"></span>
+        </div>
+
+        <label class="flex items-center gap-2 text-sm text-ink">
+          <input asp-for="RememberMe" type="checkbox" class="h-4 w-4 accent-primary" />
+          @Html.DisplayNameFor(m => m.RememberMe)
+        </label>
+
+        <button type="submit" class="btn btn-primary btn-pill btn-lg w-full">Đăng nhập</button>
+      </form>
+
+      <p class="mt-6 text-center text-sm">
+        Chưa có tài khoản?
+        <a asp-action="Register" class="font-semibold text-primary hover:underline">Đăng ký</a>
+      </p>
+    </div>
+  </div>
+</section>

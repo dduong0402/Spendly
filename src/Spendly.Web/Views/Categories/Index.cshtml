@@ -1,0 +1,59 @@
+@model IReadOnlyList<CategoryItem>
+@{
+    ViewData["Title"] = "Danh mục";
+    var defaults = Model.Where(c => c.IsSystemDefault).ToList();
+    var own = Model.Where(c => !c.IsSystemDefault).ToList();
+}
+
+<section class="container-app py-10">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl sm:text-3xl">Danh Mục</h1>
+      <p class="mt-1 text-sm">Phân loại các khoản chi của bạn.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary btn-pill">+ Thêm danh mục</a>
+  </div>
+
+  <h2 class="mt-10 text-lg">Danh mục của bạn</h2>
+  @if (own.Count == 0)
+  {
+    <div class="card mt-4 text-center">
+      <p class="font-semibold text-ink">Bạn chưa tạo danh mục nào</p>
+      <p class="mt-1 text-sm">Tạo danh mục riêng như "Cà phê", "Thú cưng"... để thống kê chi tiết hơn.</p>
+    </div>
+  }
+  else
+  {
+    <ul class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      @foreach (var item in own)
+      {
+        <li class="card p-4 sm:p-4">
+          <div class="flex items-center justify-between gap-3">
+            <partial name="_CategoryChip" model="new CategoryChipViewModel(item.Name, item.Color, item.Icon)" />
+            <span class="badge">@item.ExpenseCount khoản chi</span>
+          </div>
+          <div class="mt-4 flex items-center gap-1">
+            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-secondary px-3 py-1.5">Sửa</a>
+            <form asp-action="Delete" asp-route-id="@item.Id" method="post" data-confirm="Xóa danh mục &quot;@item.Name&quot;?">
+              <button type="submit" class="btn btn-ghost px-3 py-1.5 text-danger">Xóa</button>
+            </form>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+
+  <h2 class="mt-10 text-lg">Danh mục mặc định</h2>
+  <p class="mt-1 text-sm">Có sẵn cho mọi người dùng, không thể sửa hoặc xóa.</p>
+  <ul class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    @foreach (var item in defaults)
+    {
+      <li class="card p-4 sm:p-4">
+        <div class="flex items-center justify-between gap-3">
+          <partial name="_CategoryChip" model="new CategoryChipViewModel(item.Name, item.Color, item.Icon)" />
+          <span class="badge">@item.ExpenseCount khoản chi</span>
+        </div>
+      </li>
+    }
+  </ul>
+</section>

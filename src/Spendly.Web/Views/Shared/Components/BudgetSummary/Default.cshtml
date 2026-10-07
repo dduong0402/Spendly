@@ -1,0 +1,58 @@
+@model BudgetSnapshot
+@{
+    var hasOverall = Model.Overall.Count > 0;
+    var hasCategories = Model.Categories.Count > 0;
+    var shown = Model.Categories.Take(4).ToList();
+}
+
+@if (!hasOverall && !hasCategories)
+{
+  <div class="card mt-6 flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5">
+    <div>
+      <p class="font-semibold text-ink">Đặt hạn mức chi tiêu</p>
+      <p class="text-sm">Nhận cảnh báo khi chi tiêu tiến gần hạn mức theo tuần, tháng hoặc từng danh mục.</p>
+    </div>
+    <a asp-controller="Budgets" asp-action="Index" class="btn btn-secondary btn-pill">Đặt hạn mức</a>
+  </div>
+}
+else
+{
+  @if (hasOverall)
+  {
+    <div class="mt-6 grid gap-4 md:grid-cols-2">
+      @foreach (var status in Model.Overall)
+      {
+        <div class="card p-4 sm:p-5">
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="text-lg">@status.PeriodLabel</h2>
+            <a asp-controller="Budgets" asp-action="Index" class="text-sm font-semibold text-primary hover:underline">Quản lý</a>
+          </div>
+          <partial name="_BudgetProgress" model="status" />
+        </div>
+      }
+    </div>
+  }
+
+  @if (hasCategories)
+  {
+    <div class="card @(hasOverall ? "mt-4" : "mt-6") p-4 sm:p-5">
+      <div class="flex items-center justify-between gap-3">
+        <h2 class="text-lg">Hạn mức theo danh mục</h2>
+        <a asp-controller="Budgets" asp-action="Index" class="text-sm font-semibold text-primary hover:underline">Quản lý</a>
+      </div>
+      <ul class="mt-2 divide-y divide-line">
+        @foreach (var item in shown)
+        {
+          <partial name="_CategoryBudgetRow" model="item" />
+        }
+      </ul>
+      @if (Model.Categories.Count > shown.Count)
+      {
+        <p class="mt-2 text-sm">
+          Còn @(Model.Categories.Count - shown.Count) hạn mức khác.
+          <a asp-controller="Budgets" asp-action="Index" class="font-semibold text-primary hover:underline">Xem tất cả</a>
+        </p>
+      }
+    </div>
+  }
+}

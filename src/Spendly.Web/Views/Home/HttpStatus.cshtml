@@ -1,0 +1,27 @@
+@model int
+@{
+    var (title, message) = Model switch
+    {
+        404 => ("Không tìm thấy trang", "Trang bạn tìm không tồn tại hoặc đã bị xóa."),
+        403 => ("Không có quyền truy cập", "Bạn không có quyền xem nội dung này."),
+        429 => ("Bạn thao tác quá nhanh", "Bạn đã gửi quá nhiều yêu cầu. Vui lòng đợi vài phút rồi thử lại."),
+        _ => ("Có lỗi xảy ra", "Xin lỗi, đã có sự cố khi xử lý yêu cầu của bạn. Vui lòng thử lại sau.")
+    };
+    ViewData["Title"] = title;
+}
+
+<section class="container-app py-24 text-center">
+  <span class="badge">Lỗi @Model</span>
+  <h1 class="mt-4 text-3xl sm:text-4xl">@title</h1>
+  <p class="mx-auto mt-3 max-w-md">@message</p>
+  <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+      <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary btn-pill">Về Dashboard</a>
+    }
+    else
+    {
+      <a href="/" class="btn btn-primary btn-pill">Về trang chủ</a>
+    }
+  </div>
+</section>

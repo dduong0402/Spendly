@@ -1,0 +1,32 @@
+@model CategoryBudgetStatus
+@{
+    var status = Model.Status;
+    var fill = status.Level switch
+    {
+        BudgetLevel.Safe => "bg-success",
+        BudgetLevel.Half => "bg-primary",
+        BudgetLevel.ThreeQuarters or BudgetLevel.Nearly => "bg-warning",
+        _ => "bg-danger"
+    };
+    var periodWord = status.Period == BudgetPeriod.Week ? "Tuần" : "Tháng";
+}
+
+<li class="py-3">
+  <div class="flex items-center justify-between gap-3">
+    <div class="flex min-w-0 items-center gap-2">
+      <partial name="_CategoryChip" model="new CategoryChipViewModel(Model.CategoryName, Model.CategoryColor, Model.CategoryEmoji)" />
+      <span class="badge">@periodWord</span>
+    </div>
+    <span class="stat-number shrink-0 text-sm">@status.PercentText%</span>
+  </div>
+  <div class="mt-2 h-2 overflow-hidden rounded-full bg-soft" role="progressbar" aria-label="@status.PeriodLabel" aria-valuemin="0" aria-valuemax="100" aria-valuenow="@status.BarPercent">
+    <div class="h-2 rounded-full @fill" style="width:@(status.BarPercent)%"></div>
+  </div>
+  <div class="mt-1 flex flex-wrap justify-between gap-x-3 text-xs">
+    <span>@MoneyFormatter.Format(status.Spent) / @MoneyFormatter.Format(status.Limit)</span>
+    @if (status.Level >= BudgetLevel.ThreeQuarters)
+    {
+      <span class="font-semibold text-ink">@status.Title</span>
+    }
+  </div>
+</li>

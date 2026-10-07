@@ -1,0 +1,207 @@
+@{
+    ViewData["Title"] = "Theo dõi chi tiêu cá nhân";
+}
+
+@* ===== Hero ===== *@
+<section class="pb-16 pt-16 sm:pt-24">
+  <div class="container-app text-center">
+    <span class="badge">Quản lý chi tiêu cá nhân</span>
+    <h1 class="mx-auto mt-5 max-w-3xl text-4xl font-extrabold sm:text-6xl">
+      Theo Dõi Chi Tiêu.<br />Rõ Ràng Từng Đồng.
+    </h1>
+    <p class="mx-auto mt-5 max-w-xl text-base sm:text-lg">
+      Ghi lại mỗi khoản chi trong ngày, xem thống kê theo ngày, tuần và tháng chỉ trong vài giây.
+    </p>
+    <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+      <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-pill btn-lg">Bắt đầu ngay</a>
+      <a asp-controller="Account" asp-action="Login" class="btn btn-secondary btn-pill btn-lg">Đăng nhập</a>
+    </div>
+
+    @* ----- Dashboard preview (dữ liệu mẫu) ----- *@
+    <div class="card mx-auto mt-14 max-w-5xl text-left">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="text-lg">Tổng quan chi tiêu</h2>
+          <p class="text-sm">Dữ liệu minh họa</p>
+        </div>
+        <div class="segmented" role="tablist" aria-label="Chọn kỳ thống kê" data-segmented>
+          <button type="button" role="tab" class="segmented-item" aria-selected="false">Ngày</button>
+          <button type="button" role="tab" class="segmented-item" aria-selected="true">Tuần</button>
+          <button type="button" role="tab" class="segmented-item" aria-selected="false">Tháng</button>
+        </div>
+      </div>
+
+      <div class="mt-6 grid gap-4 sm:grid-cols-3">
+        <div class="rounded-xl border border-line p-4">
+          <p class="text-sm">Tổng chi tuần này</p>
+          <p class="stat-number mt-1 text-2xl">@MoneyFormatter.Format(3420000)</p>
+          <span class="badge badge-success mt-2">↓ 8% so với tuần trước</span>
+        </div>
+        <div class="rounded-xl border border-line p-4">
+          <p class="text-sm">Trung bình mỗi ngày</p>
+          <p class="stat-number mt-1 text-2xl">@MoneyFormatter.Format(488571)</p>
+          <span class="badge mt-2">7 ngày</span>
+        </div>
+        <div class="rounded-xl border border-line p-4">
+          <p class="text-sm">Số giao dịch</p>
+          <p class="stat-number mt-1 text-2xl">24</p>
+          <span class="badge badge-danger mt-2">↑ 3 so với tuần trước</span>
+        </div>
+      </div>
+
+      <div class="mt-6 grid gap-6 lg:grid-cols-5">
+        <div class="lg:col-span-3">
+          <p class="mb-2 text-sm font-semibold text-ink">Xu hướng chi tiêu</p>
+          <svg viewBox="0 0 600 230" class="h-auto w-full text-primary" role="img" aria-label="Biểu đồ đường chi tiêu 7 ngày (mẫu)">
+            <defs>
+              <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="currentColor" stop-opacity="0.25" />
+                <stop offset="100%" stop-color="currentColor" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+            <g stroke="var(--border)" stroke-width="1">
+              <line x1="20" y1="40" x2="580" y2="40" />
+              <line x1="20" y1="90" x2="580" y2="90" />
+              <line x1="20" y1="140" x2="580" y2="140" />
+              <line x1="20" y1="190" x2="580" y2="190" />
+            </g>
+            <path d="M20 150 L113 110 L207 130 L300 60 L393 100 L487 45 L580 85 L580 190 L20 190 Z" fill="url(#areaFill)" />
+            <polyline points="20,150 113,110 207,130 300,60 393,100 487,45 580,85" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+            <g fill="#fff" stroke="currentColor" stroke-width="3">
+              <circle cx="20" cy="150" r="4.5" />
+              <circle cx="113" cy="110" r="4.5" />
+              <circle cx="207" cy="130" r="4.5" />
+              <circle cx="300" cy="60" r="4.5" />
+              <circle cx="393" cy="100" r="4.5" />
+              <circle cx="487" cy="45" r="4.5" />
+              <circle cx="580" cy="85" r="4.5" />
+            </g>
+            <g fill="var(--text-muted)" font-size="12" text-anchor="middle">
+              <text x="20" y="215">T2</text>
+              <text x="113" y="215">T3</text>
+              <text x="207" y="215">T4</text>
+              <text x="300" y="215">T5</text>
+              <text x="393" y="215">T6</text>
+              <text x="487" y="215">T7</text>
+              <text x="580" y="215">CN</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="lg:col-span-2">
+          <p class="mb-3 text-sm font-semibold text-ink">Theo danh mục</p>
+          <ul class="space-y-3">
+            <li>
+              <div class="mb-1 flex justify-between text-sm"><span class="text-ink">Ăn uống</span><span class="stat-number text-sm">38%</span></div>
+              <div class="h-2 rounded-full bg-soft"><div class="h-2 rounded-full bg-primary" style="width:38%"></div></div>
+            </li>
+            <li>
+              <div class="mb-1 flex justify-between text-sm"><span class="text-ink">Di chuyển</span><span class="stat-number text-sm">22%</span></div>
+              <div class="h-2 rounded-full bg-soft"><div class="h-2 rounded-full bg-sky-2" style="width:22%"></div></div>
+            </li>
+            <li>
+              <div class="mb-1 flex justify-between text-sm"><span class="text-ink">Mua sắm</span><span class="stat-number text-sm">18%</span></div>
+              <div class="h-2 rounded-full bg-soft"><div class="h-2 rounded-full bg-sky-1" style="width:18%"></div></div>
+            </li>
+            <li>
+              <div class="mb-1 flex justify-between text-sm"><span class="text-ink">Khác</span><span class="stat-number text-sm">22%</span></div>
+              <div class="h-2 rounded-full bg-soft"><div class="h-2 rounded-full bg-line" style="width:22%"></div></div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+@* ===== Tính năng ===== *@
+<section id="tinh-nang" class="container-app py-20">
+  <div class="mx-auto max-w-2xl text-center">
+    <span class="badge">Tính năng</span>
+    <h2 class="mt-4 text-3xl sm:text-4xl">Mọi Thứ Bạn Cần Để Nắm Rõ Chi Tiêu</h2>
+    <p class="mt-3">Đơn giản, nhanh và đủ dùng cho việc theo dõi chi tiêu hằng ngày.</p>
+  </div>
+
+  <div class="mt-12 grid gap-6 sm:grid-cols-2">
+    <div class="card">
+      <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-soft text-xl" aria-hidden="true">✍️</span>
+      <h3 class="mt-4 text-lg">Ghi chi tiêu trong vài giây</h3>
+      <p class="mt-1 text-sm">Nhập số tiền (tự thêm dấu chấm như 1.250.000), chọn danh mục, ngày và ghi chú. Sửa hoặc xóa bất cứ lúc nào.</p>
+    </div>
+    <div class="card">
+      <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-soft text-xl" aria-hidden="true">📊</span>
+      <h3 class="mt-4 text-lg">Thống kê theo ngày, tuần, tháng</h3>
+      <p class="mt-1 text-sm">Biểu đồ xu hướng, tỷ trọng theo danh mục và so sánh với kỳ trước. Chọn nhanh bất kỳ tháng nào, không phải bấm lùi từng kỳ.</p>
+    </div>
+    <div class="card">
+      <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-soft text-xl" aria-hidden="true">🏷️</span>
+      <h3 class="mt-4 text-lg">Danh mục theo ý bạn</h3>
+      <p class="mt-1 text-sm">Có sẵn 9 danh mục phổ biến. Tạo thêm danh mục riêng với màu sắc và một emoji bất kỳ bạn thích.</p>
+    </div>
+    <div class="card">
+      <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-soft text-xl" aria-hidden="true">🔒</span>
+      <h3 class="mt-4 text-lg">Dữ liệu của riêng bạn</h3>
+      <p class="mt-1 text-sm">Mỗi tài khoản chỉ nhìn thấy dữ liệu của chính mình. Mật khẩu được mã hóa một chiều, không lưu mật khẩu gốc.</p>
+    </div>
+  </div>
+</section>
+
+@* ===== Cách hoạt động ===== *@
+<section class="container-app pb-20">
+  <div class="mx-auto max-w-2xl text-center">
+    <span class="badge">Bắt đầu</span>
+    <h2 class="mt-4 text-3xl sm:text-4xl">Sẵn Sàng Trong Ba Bước</h2>
+  </div>
+
+  <ol class="mt-12 grid gap-6 md:grid-cols-3">
+    <li class="card">
+      <span class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-white" aria-hidden="true">1</span>
+      <h3 class="mt-4 text-lg">Tạo tài khoản</h3>
+      <p class="mt-1 text-sm">Chỉ cần email, tên hiển thị và mật khẩu.</p>
+    </li>
+    <li class="card">
+      <span class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-white" aria-hidden="true">2</span>
+      <h3 class="mt-4 text-lg">Ghi khoản chi đầu tiên</h3>
+      <p class="mt-1 text-sm">Ghi lại các khoản chi ngay khi phát sinh để không bỏ sót.</p>
+    </li>
+    <li class="card">
+      <span class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-white" aria-hidden="true">3</span>
+      <h3 class="mt-4 text-lg">Xem thống kê</h3>
+      <p class="mt-1 text-sm">Dashboard cho bạn thấy tiền đi đâu theo ngày, tuần và tháng.</p>
+    </li>
+  </ol>
+</section>
+
+@* ===== Câu hỏi thường gặp ===== *@
+<section class="container-app pb-20">
+  <div class="mx-auto max-w-2xl">
+    <h2 class="text-center text-3xl sm:text-4xl">Câu Hỏi Thường Gặp</h2>
+    <div class="mt-10 space-y-3">
+      <details class="card p-4 sm:p-5">
+        <summary class="cursor-pointer font-semibold text-ink">Spendly có theo dõi thu nhập không?</summary>
+        <p class="mt-2 text-sm">Hiện tại Spendly tập trung vào dòng tiền ra, tức các khoản chi của bạn.</p>
+      </details>
+      <details class="card p-4 sm:p-5">
+        <summary class="cursor-pointer font-semibold text-ink">Dùng đơn vị tiền tệ nào?</summary>
+        <p class="mt-2 text-sm">Tiền Việt Nam đồng (₫). Số tiền được lưu bằng số nguyên nên không bị sai số làm tròn.</p>
+      </details>
+      <details class="card p-4 sm:p-5">
+        <summary class="cursor-pointer font-semibold text-ink">Tuần được tính từ ngày nào?</summary>
+        <p class="mt-2 text-sm">Từ Thứ Hai đến Chủ Nhật. Ngày và tháng được tính theo giờ Việt Nam.</p>
+      </details>
+      <details class="card p-4 sm:p-5">
+        <summary class="cursor-pointer font-semibold text-ink">Dữ liệu của tôi có bị người khác xem được không?</summary>
+        <p class="mt-2 text-sm">Không. Mỗi tài khoản chỉ truy cập được khoản chi và danh mục của chính mình.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+@* ===== Kêu gọi hành động ===== *@
+<section class="container-app pb-24">
+  <div class="card mx-auto max-w-3xl py-10 text-center sm:py-12">
+    <h2 class="text-3xl sm:text-4xl">Bắt Đầu Theo Dõi Chi Tiêu Hôm Nay</h2>
+    <p class="mx-auto mt-3 max-w-lg">Chỉ mất một phút để tạo tài khoản và ghi lại khoản chi đầu tiên.</p>
+    <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-pill btn-lg mt-8">Tạo tài khoản</a>
+  </div>
+</section>
